@@ -15,15 +15,19 @@ const TaskPage = () => {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("active");
 
-  const loadTasks = async () => {
+const loadTasks = async () => {
     try {
       setLoading(true);
       setError("");
       const tasksData = await taskService.getAll();
-      setTasks(tasksData);
+      setTasks(tasksData || []);
     } catch (err) {
       setError("Failed to load tasks. Please try again.");
-      console.error("Error loading tasks:", err);
+      if (err?.response?.data?.message) {
+        console.error("Error loading tasks:", err?.response?.data?.message);
+      } else {
+        console.error("Error loading tasks:", err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -33,16 +37,19 @@ const TaskPage = () => {
     loadTasks();
   }, []);
 
-  const handleAddTask = async (text) => {
+const handleAddTask = async (text) => {
     try {
       const newTask = await taskService.create({ text });
       setTasks(prev => [...prev, newTask]);
+      toast.success("Task added successfully!");
     } catch (err) {
-      throw new Error("Failed to add task");
+      const errorMessage = err?.response?.data?.message || "Failed to add task";
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 
-  const handleToggleComplete = async (taskId) => {
+const handleToggleComplete = async (taskId) => {
     try {
       const updatedTask = await taskService.toggleComplete(taskId);
       setTasks(prev => 
@@ -50,17 +57,23 @@ const TaskPage = () => {
           task.Id === taskId ? updatedTask : task
         )
       );
+      toast.success("Task updated successfully!");
     } catch (err) {
-      throw new Error("Failed to update task");
+      const errorMessage = err?.response?.data?.message || "Failed to update task";
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 
-  const handleDeleteTask = async (taskId) => {
+const handleDeleteTask = async (taskId) => {
     try {
       await taskService.delete(taskId);
       setTasks(prev => prev.filter(task => task.Id !== taskId));
+      toast.success("Task deleted successfully!");
     } catch (err) {
-      throw new Error("Failed to delete task");
+      const errorMessage = err?.response?.data?.message || "Failed to delete task";
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
     }
   };
 

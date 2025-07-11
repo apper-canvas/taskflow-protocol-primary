@@ -1,20 +1,42 @@
-import React from "react";
+import React, { useContext } from "react";
 import { motion } from "framer-motion";
-import Badge from "@/components/atoms/Badge";
+import { useSelector } from "react-redux";
+import { AuthContext } from "@/App";
 import ApperIcon from "@/components/ApperIcon";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
 
 const TaskHeader = ({ activeTaskCount, completedTaskCount }) => {
+  const { logout } = useContext(AuthContext);
+  const { user } = useSelector((state) => state.user);
   const totalTasks = activeTaskCount + completedTaskCount;
   const completionPercentage = totalTasks > 0 ? Math.round((completedTaskCount / totalTasks) * 100) : 0;
 
-  return (
+return (
     <motion.div
       initial={{ opacity: 0, y: -30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
       className="text-center mb-8"
     >
-      <div className="flex items-center justify-center gap-4 mb-4">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="text-sm text-gray-600">
+            Welcome, {user?.firstName || user?.name || 'User'}!
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={logout}
+          className="flex items-center gap-2"
+        >
+          <ApperIcon name="LogOut" className="w-4 h-4" />
+          Logout
+        </Button>
+</div>
+      
+      <div className="flex flex-col items-center mb-6">
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
